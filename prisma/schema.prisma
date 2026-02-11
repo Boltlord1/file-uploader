@@ -24,6 +24,9 @@ model Folder {
   name String
   created DateTime @default(now())
   files File[]
+  parent Folder? @relation("folderParent", fields: [parentId], references: [id])
+  parentId Int? @default(1)
+  children Folder[] @relation("folderParent")
 }
 
 model File {

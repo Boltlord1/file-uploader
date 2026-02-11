@@ -23,6 +23,17 @@ const postSignUp = [
     signUp
 ]
 
+async function postUpload(req, res) {
+    console.log(req.file)
+    const file = req.file
+    await prisma.file.create({ data: {
+        name: file.originalname,
+        
+    }})
+    res.redirect('/')
+}
+
 export default {
-    postSignUp
+    postSignUp,
+    postUpload
 }

@@ -18,10 +18,6 @@ router.post('/login', passport.authenticate('local', {
     failureRedirect: '/invalid'
 }))
 
-router.post('/upload', upload.single('new_file'), (req, res, next) => {
-    console.log(req.file)
-    res.redirect('/')
-    next()
-})
+router.post('/upload', upload.single('new_file'), controllers.postUpload)
 
 export default router
