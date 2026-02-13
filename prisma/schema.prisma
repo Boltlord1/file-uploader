@@ -38,5 +38,12 @@ model File {
   folder     Folder   @relation(fields: [folderPath], references: [path])
   folderPath String
 
-  @@unique(name: "fullPath", [name, folderPath])
+  @@id(name: "fullPath", [name, folderPath])
+}
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String
+  expiresAt DateTime
 }

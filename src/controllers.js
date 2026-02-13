@@ -24,18 +24,6 @@ const postSignUp = [
     postSignUpLast
 ]
 
-async function postUpload(req, res) {
-    const file = req.file
-    await prisma.file.create({ data: {
-        name: file.originalname,
-        mime: file.mimetype,
-        url: file.filename,
-        size: file.size,
-        folder: { connect: { path: '/' } }
-    }})
-    res.redirect('/files')
-}
-
 async function getRoot(req, res) {
     const folder = await prisma.folder.findUnique({
         where: { path: '/' },
@@ -129,12 +117,33 @@ async function deleteFolder(req, res) {
     res.redirect('/files')
 }
 
+async function getUpload(req, res) {
+    const params = req.params.path || []
+    const path = params.length === 0 ? '/' : `/${params.join('/')}/`
+    res.render('upload', { user: req.user, path: path })
+}
+
+async function postUpload(req, res) {
+    const params = req.params.path || []
+    const path = params.length === 0 ? '/' : `/${params.join('/')}/`
+    const file = req.file
+    await prisma.file.create({ data: {
+        name: file.originalname,
+        mime: file.mimetype,
+        url: file.filename,
+        size: file.size,
+        folder: { connect: { path: path } }
+    }})
+    res.redirect('/files')
+}
+
 export default {
     postSignUp,
-    postUpload,
     getRoot,
     getFolder,
     postFolder,
     updateFolder,
-    deleteFolder
+    deleteFolder,
+    getUpload,
+    postUpload
 }

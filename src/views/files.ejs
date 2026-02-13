@@ -10,10 +10,11 @@
     <main>
         <h2><%- folder.name %> folder</h2>
         <p>Created <%- folder.created %></p>
+        <p><a href=<%- `/upload${folder.path.slice(0, -1)}` %>>Upload file</a></p>
         <% if (folder.parentPath) { %>
-            <p><a href="<%= `/files${folder.parentPath.slice(0, -1)}` %>">Return</a></p>
+            <p><a href=<%- `/files${folder.parentPath.slice(0, -1)}` %>>Return</a></p>
         <% } %>
-        <form action="<%= `/folder/create${folder.path.slice(0, -1)}` %>" method="post">
+        <form action=<%- `/folder/create${folder.path.slice(0, -1)}` %> method="post">
             <h3>New Folder</h3>
             <label for="name">Name</label>
             <input type="text" name="name" id="name">

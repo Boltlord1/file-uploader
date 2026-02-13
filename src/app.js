@@ -2,6 +2,8 @@ import path from 'node:path'
 import 'dotenv/config'
 import express from 'express'
 import session from 'express-session'
+import { PrismaSessionStore } from '@quixo3/prisma-session-store'
+import prisma from './prisma.js'
 import passport from './passport.js'
 import router from './router.js'
 
@@ -9,7 +11,19 @@ const app = express()
 app.set('views', path.join(import.meta.dirname, 'views'))
 app.set('view engine', 'ejs')
 
-app.use(session({ secret: 'cats', resave: false, saveUninitialized: false }))
+
+app.use(session({
+    cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 },
+    secret: 'a santa at nasa',
+    resave: true,
+    saveUninitialized: true,
+    store: new PrismaSessionStore(prisma, {
+        checkPeriod: 2 * 60 * 1000,
+        dbRecordIdIsSessionId: true,
+        dbRecordIdFunction: undefined
+    })
+}))
+// app.use(session({ secret: 'cats', resave: false, saveUninitialized: false }))
 app.use(passport.session())
 app.use(express.urlencoded({ extended: true }))
 
