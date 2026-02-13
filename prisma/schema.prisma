@@ -14,27 +14,29 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  name String @unique
-  hash String
+  id   Int    @id @default(autoincrement())
+  name String @unique @db.VarChar(255)
+  hash String @db.VarChar(255)
 }
 
 model Folder {
-  id Int @id @default(autoincrement())
-  name String
-  created DateTime @default(now())
-  files File[]
-  parent Folder? @relation("folderParent", fields: [parentId], references: [id])
-  parentId Int? @default(1)
-  children Folder[] @relation("folderParent")
+  path       String   @id
+  name       String   @db.VarChar(255)
+  created    DateTime @default(now())
+  files      File[]
+  children   Folder[] @relation("folderParent")
+  parent     Folder?  @relation("folderParent", fields: [parentPath], references: [path])
+  parentPath String?
 }
 
 model File {
-  id Int @id @default(autoincrement())
-  name String
-  uploaded DateTime @default(now())
-  url String
-  size Int
-  folder Folder @relation(fields: [folderId], references: [id])
-  folderId Int
+  name       String   @db.VarChar(255)
+  mime       String   @db.VarChar(255)
+  url        String   @db.VarChar(255)
+  size       Int
+  uploaded   DateTime @default(now())
+  folder     Folder   @relation(fields: [folderPath], references: [path])
+  folderPath String
+
+  @@unique(name: "fullPath", [name, folderPath])
 }

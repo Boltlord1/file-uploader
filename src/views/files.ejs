@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Files</title>
+</head>
+<body>
+    <%- include('navbar') %>
+    <main>
+        <h2><%- folder.name %> folder</h2>
+        <p>Created <%- folder.created %></p>
+        <% if (folder.parentPath) { %>
+            <a href="<%= `/files${folder.parentPath.slice(0, -1)}` %>">Return</a>
+        <% } %>
+        <form action="<%= `/upload/folder${folder.path.slice(0, -1)}` %>" method="post">
+            <h3>New Folder</h3>
+            <label for="name">Name</label>
+            <input type="text" name="name" id="name">
+            <button type="submit">Create</button>
+        </form>
+        <% for (const file of folder.files) { %>
+            <div>
+                <p>Name <%- file.name %></p>
+                <p>Mime type <%- file.mime %></p>
+                <p>Size <%- file.size %></p>
+                <p>Uploaded <%- file.uploaded %></p>
+            </div>
+        <% } %>
+        <% for (const child of folder.children) { %>
+            <div>
+                <p>Name <%- child.name %></p>
+                <p>Created <%- child.created %></p>
+                <p><a href="<%= `/files${child.path.slice(0, -1)}` %>">Open</a></p>
+            </div>
+        <% } %>
+    </main>
+</body>
+</html>

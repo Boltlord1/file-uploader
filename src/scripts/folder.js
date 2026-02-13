@@ -8,7 +8,7 @@ try {
     await prisma.folder.create({
         data: {
             name: 'root',
-            parentId: null
+            path: '/'
         }
     })
     console.log('Added folder.')
