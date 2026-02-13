@@ -21,7 +21,7 @@
     "start": "node src/app.js",
     "user": "node src/scripts/user.js",
     "folder": "node src/scripts/folder.js",
-    "paths": "node src/scripts/paths.js",
+    "path": "node src/scripts/path.js",
     "studio": "prisma studio --config ./prisma.config.js"
   }
 }

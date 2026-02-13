@@ -25,7 +25,9 @@ router.post('/upload', upload.single('new_file'), controllers.postUpload)
 router.get('/files', controllers.getRoot)
 router.get('/files/*path', controllers.getFolder)
 
-router.post('/upload/folder', controllers.postFolder)
-router.post('/upload/folder/*path', controllers.postFolder)
+router.post('/folder/create', controllers.postFolder)
+router.post('/folder/create/*path', controllers.postFolder)
+
+router.post('/folder/update/*path', controllers.updateFolder)
 
 export default router
