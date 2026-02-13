@@ -27,7 +27,7 @@ router.get('/files/*path', controllers.getFolder)
 
 router.post('/folder/create', controllers.postFolder)
 router.post('/folder/create/*path', controllers.postFolder)
-
 router.post('/folder/update/*path', controllers.updateFolder)
+router.post('/folder/delete/', controllers.deleteFolder)
 
 export default router

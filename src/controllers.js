@@ -1,7 +1,7 @@
 import { body, validationResult, matchedData } from 'express-validator'
 import { hash } from 'bcrypt'
 import prisma from './prisma.js'
-import updateChildren from './library/updateChildren.js'
+import recursion from './library/recursion.js'
 
 const username = body('username').trim().notEmpty().isLength({ max: 256 })
 const password = body('password').trim().notEmpty().isLength({ max: 256 })
@@ -109,8 +109,9 @@ async function updateFolderLast(req, res) {
             parent: { connect: { path: parentPath } }
         }
     })
-    await updateChildren(path)
-    res.redirect('/files')
+    await recursion.updateChildren(path)
+    const redirectPath = `/files${parentPath}${name}`
+    res.redirect(redirectPath)
 }
 
 const updateFolder = [
@@ -118,11 +119,22 @@ const updateFolder = [
     updateFolderLast
 ]
 
+async function deleteFolder(req, res) {
+    const path = req.body.path
+    if (path === '/') {
+        res.redirect('/invalid')
+        return
+    }
+    await recursion.deleteChildren(path)
+    res.redirect('/files')
+}
+
 export default {
     postSignUp,
     postUpload,
     getRoot,
     getFolder,
     postFolder,
-    updateFolder
+    updateFolder,
+    deleteFolder
 }
