@@ -117,11 +117,11 @@ async function deleteFolder(req, res) {
     res.redirect('/files')
 }
 
-async function getUpload(req, res) {
-    const params = req.params.path || []
-    const path = params.length === 0 ? '/' : `/${params.join('/')}/`
-    res.render('upload', { user: req.user, path: path })
-}
+// async function getUpload(req, res) {
+//     const params = req.params.path || []
+//     const path = params.length === 0 ? '/' : `/${params.join('/')}/`
+//     res.render('upload', { user: req.user, path: path })
+// }
 
 async function postUpload(req, res) {
     const params = req.params.path || []
@@ -134,7 +134,8 @@ async function postUpload(req, res) {
         size: file.size,
         folder: { connect: { path: path } }
     }})
-    res.redirect('/files')
+    const redirectPath = `/files${path.slice(0, -1)}`
+    res.redirect(redirectPath)
 }
 
 export default {
@@ -144,6 +145,6 @@ export default {
     postFolder,
     updateFolder,
     deleteFolder,
-    getUpload,
+    // getUpload,
     postUpload
 }
