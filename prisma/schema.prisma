@@ -30,6 +30,7 @@ model Folder {
 }
 
 model File {
+  id         Int      @id @default(autoincrement())
   name       String   @db.VarChar(255)
   mime       String   @db.VarChar(255)
   url        String   @db.VarChar(255)
@@ -38,7 +39,7 @@ model File {
   folder     Folder   @relation(fields: [folderPath], references: [path])
   folderPath String
 
-  @@id(name: "fullPath", [name, folderPath])
+  @@unique(name: "fullPath", [name, folderPath])
 }
 
 model Session {

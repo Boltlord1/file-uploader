@@ -3,8 +3,8 @@ import { hash } from 'bcrypt'
 import prisma from './prisma.js'
 import recursion from './library/recursion.js'
 
-const username = body('username').trim().notEmpty().isLength({ max: 256 })
-const password = body('password').trim().notEmpty().isLength({ max: 256 })
+const varchar = (name) => body(name).trim().notEmpty().isLength({ max: 256 })
+const mimetype = body('mime').trim().isMimeType()
 
 async function postSignUpLast(req, res) {
     const errors = validationResult(req)
@@ -19,8 +19,8 @@ async function postSignUpLast(req, res) {
 }
 
 const postSignUp = [
-    username,
-    password,
+    varchar('username'),
+    varchar('password'),
     postSignUpLast
 ]
 
@@ -46,8 +46,6 @@ async function getFolder(req, res) {
     const paths = allPaths.map(path => path.path).filter(path => !path.startsWith(folder.path))
     res.render('files', { folder: folder, paths: paths })
 }
-
-const folderName = body('name').trim().notEmpty().isLength({ max: 256 })
 
 async function postFolderLast(req, res) {
     const errors = validationResult(req)
@@ -75,7 +73,7 @@ async function postFolderLast(req, res) {
 }
 
 const postFolder = [
-    folderName,
+    varchar('name'),
     postFolderLast
 ]
 
@@ -103,7 +101,7 @@ async function updateFolderLast(req, res) {
 }
 
 const updateFolder = [
-    folderName,
+    varchar('name'),
     updateFolderLast
 ]
 
@@ -116,12 +114,6 @@ async function deleteFolder(req, res) {
     await recursion.deleteChildren(path)
     res.redirect('/files')
 }
-
-// async function getUpload(req, res) {
-//     const params = req.params.path || []
-//     const path = params.length === 0 ? '/' : `/${params.join('/')}/`
-//     res.render('upload', { user: req.user, path: path })
-// }
 
 async function postUpload(req, res) {
     const params = req.params.path || []
@@ -138,6 +130,41 @@ async function postUpload(req, res) {
     res.redirect(redirectPath)
 }
 
+async function getFile(req, res) {
+    const id = Number(req.params.id)
+    const file = await prisma.file.findUnique({ where: { id: id }})
+    const allPaths = await prisma.folder.findMany({ select: { path: true } })
+    const paths = allPaths.map(path => path.path)
+    res.render('file', { file: file, paths: paths })
+}
+
+async function updateFileLast(req, res) {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+        res.redirect('/invalid')
+        return
+    }
+    const { name, mime } = matchedData(req)
+    const folder = req.body.folder
+    const id = Number(req.params.id)
+    await prisma.file.update({
+        where: { id: id },
+        data: {
+            name: name,
+            mime: mime,
+            folder: { connect: { path: folder }}
+        }
+    })
+    const redirectPath = `/files${folder.slice(0, -1)}`
+    res.redirect(redirectPath)
+}
+
+const updateFile = [
+    varchar('name'),
+    mimetype,
+    updateFileLast
+]
+
 export default {
     postSignUp,
     getRoot,
@@ -145,6 +172,7 @@ export default {
     postFolder,
     updateFolder,
     deleteFolder,
-    // getUpload,
-    postUpload
+    postUpload,
+    getFile,
+    updateFile
 }

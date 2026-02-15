@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File</title>
+</head>
+<body>
+    <%- include('navbar') %>
+    <main>
+        <h2>Edit File</h2>
+        <form action=<%- `/file/edit/${file.id}` %> method="post">
+            <label for="name">Name</label>
+            <input type="text" name="name" id="name" value="<%- file.name %>">
+            <label for="mime">Mime type</label>
+            <input type="text" name="mime" id="mime" value=<%- file.mime %>>
+            <label for="folder">Folder</label>
+            <select name="folder" id="folder">
+                <% for (const path of paths) { %>
+                    <% const selected = path === file.folderPath ? 'selected' : '' %>
+                    <option value=<%- path %> <%- selected %>><%- path %></option>
+                <% } %>
+            </select>
+            <button type="submit">Submit</button>
+        </form>
+    </main>
+</body>
+</html>

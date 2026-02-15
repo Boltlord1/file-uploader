@@ -30,4 +30,7 @@ router.post('/folder/delete/', controllers.deleteFolder)
 router.post('/file/upload', upload.single('new_file'), controllers.postUpload)
 router.post('/file/upload/*path', upload.single('new_file'), controllers.postUpload)
 
+router.get('/file/edit/:id', controllers.getFile)
+router.post('/file/edit/:id', controllers.updateFile)
+
 export default router
