@@ -165,6 +165,12 @@ const updateFile = [
     updateFileLast
 ]
 
+async function deleteFile(req, res) {
+    const id = Number(req.params.id)
+    await prisma.file.delete({ where: { id: id }})
+    res.redirect('/files')
+}
+
 export default {
     postSignUp,
     getRoot,
@@ -174,5 +180,6 @@ export default {
     deleteFolder,
     postUpload,
     getFile,
-    updateFile
+    updateFile,
+    deleteFile
 }

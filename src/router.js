@@ -25,12 +25,11 @@ router.post('/folder/create/*path', controllers.postFolder)
 router.post('/folder/update/*path', controllers.updateFolder)
 router.post('/folder/delete/', controllers.deleteFolder)
 
-// router.get('/upload', controllers.getUpload)
-// router.get('/upload/*path', controllers.getUpload)
 router.post('/file/upload', upload.single('new_file'), controllers.postUpload)
 router.post('/file/upload/*path', upload.single('new_file'), controllers.postUpload)
 
 router.get('/file/edit/:id', controllers.getFile)
 router.post('/file/edit/:id', controllers.updateFile)
+router.post('/file/delete/:id', controllers.deleteFile)
 
 export default router

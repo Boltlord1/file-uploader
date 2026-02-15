@@ -23,6 +23,10 @@
             </select>
             <button type="submit">Submit</button>
         </form>
+        <form action=<%- `/file/delete/${file.id}` %> method="post">
+            <h2>Delete File</h2>
+            <button type="submit">Delete</button>
+        </form>
     </main>
 </body>
 </html>
