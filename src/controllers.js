@@ -2,6 +2,7 @@ import { body, validationResult, matchedData } from 'express-validator'
 import { hash } from 'bcrypt'
 import prisma from './utils/prisma.js'
 import recursion from './utils/recursion.js'
+import cloudinary from './utils/cloudinary.js'
 
 const varchar = (name) => body(name).trim().notEmpty().isLength({ max: 256 })
 const mimetype = body('mime').trim().isMimeType()
@@ -29,6 +30,9 @@ async function getRoot(req, res) {
         where: { path: '/' },
         include: { files: true, children: true }
     })
+    for (const file of folder.files) {
+        file.link = cloudinary.url(file.url, { flags: 'attachment:image' })
+    }
     res.render('files', { folder: folder, logged: req.isAuthenticated() })
 }
 
@@ -120,11 +124,23 @@ async function deleteFolder(req, res) {
     res.redirect('/files')
 }
 
-async function postUpload(req, res) {
+async function uploadToCloudinary(req, res, next) {
     if (!req.isAuthenticated()) {
         res.redirect('/invalid')
         return
     }
+    await cloudinary.uploader.upload(req.file.path, { folder: 'odin-file-uploader' }, (err, result) => {
+        if (err) {
+            console.error(err)
+            res.redirect('/invalid')
+            return
+        }
+        req.file.public_id = result.public_id
+        next()
+    })
+}
+
+async function postUploadLast(req, res) {
     const params = req.params.path || []
     const path = params.length === 0 ? '/' : `/${params.join('/')}/`
     const file = req.file
@@ -139,13 +155,18 @@ async function postUpload(req, res) {
     await prisma.file.create({ data: {
         name: file.originalname,
         mime: file.mimetype,
-        url: file.filename,
+        url: file.public_id,
         size: file.size,
         folder: { connect: { path: path } }
     }})
     const redirectPath = `/files${path.slice(0, -1)}`
     res.redirect(redirectPath)
 }
+
+const postUpload = [
+    uploadToCloudinary,
+    postUploadLast
+]
 
 async function getFile(req, res) {
     if (!req.isAuthenticated()) {

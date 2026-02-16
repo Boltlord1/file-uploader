@@ -1,4 +1,4 @@
-import prisma from '../prisma.js'
+import prisma from '../utils/prisma.js'
 
 try {
     console.log('Adding folder...')

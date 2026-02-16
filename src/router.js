@@ -1,9 +1,8 @@
 import { Router } from 'express'
 import controllers from './controllers.js'
 import passport from './utils/passport.js'
-import multer from 'multer'
+import upload from './utils/multer.js'
 
-const upload = multer({ dest: './uploads/'})
 const router = Router()
 
 router.get('/', (req, res) => res.render('index', { user: req.user }))

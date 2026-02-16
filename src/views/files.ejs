@@ -64,6 +64,7 @@
                 <p>Uploaded <%- file.uploaded %></p>
                 <% if (logged) { %>
                     <p><a href=<%- `/file/edit/${file.id}` %>>Edit</a></p>
+                    <p><a href=<%- file.link %>>Download</a></p>
                 <% } %>
             </div>
         <% }} else { %>

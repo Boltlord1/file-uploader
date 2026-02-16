@@ -24,6 +24,7 @@
     "user": "node src/scripts/user.js",
     "folder": "node src/scripts/folder.js",
     "path": "node src/scripts/path.js",
+    "file": "node src/scripts/file.js",
     "studio": "prisma studio --config ./prisma.config.js"
   }
 }
