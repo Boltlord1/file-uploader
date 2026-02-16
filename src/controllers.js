@@ -1,7 +1,7 @@
 import { body, validationResult, matchedData } from 'express-validator'
 import { hash } from 'bcrypt'
-import prisma from './prisma.js'
-import recursion from './library/recursion.js'
+import prisma from './utils/prisma.js'
+import recursion from './utils/recursion.js'
 
 const varchar = (name) => body(name).trim().notEmpty().isLength({ max: 256 })
 const mimetype = body('mime').trim().isMimeType()
@@ -29,7 +29,7 @@ async function getRoot(req, res) {
         where: { path: '/' },
         include: { files: true, children: true }
     })
-    res.render('files', { folder: folder })
+    res.render('files', { folder: folder, logged: req.isAuthenticated() })
 }
 
 async function getFolder(req, res) {
@@ -44,12 +44,12 @@ async function getFolder(req, res) {
     }
     const allPaths = await prisma.folder.findMany({ select: { path: true } })
     const paths = allPaths.map(path => path.path).filter(path => !path.startsWith(folder.path))
-    res.render('files', { folder: folder, paths: paths })
+    res.render('files', { folder: folder, paths: paths, logged: req.isAuthenticated() })
 }
 
 async function postFolderLast(req, res) {
     const errors = validationResult(req)
-    if (!errors.isEmpty()) {
+    if (!errors.isEmpty() || !req.isAuthenticated()) {
         res.redirect('/invalid')
         return
     }
@@ -79,7 +79,7 @@ const postFolder = [
 
 async function updateFolderLast(req, res) {
     const errors = validationResult(req)
-    if (!errors.isEmpty()) {
+    if (!errors.isEmpty() || !req.isAuthenticated()) {
         res.redirect('/invalid')
         return
     }
@@ -87,6 +87,11 @@ async function updateFolderLast(req, res) {
     const oldPath = `/${req.params.path.join('/')}/`
     const parentPath = req.body.parent
     const path = `${parentPath}${name}/`
+    const folder = await prisma.folder.findUnique({ where: { path: path }} )
+    if (folder !== null) {
+        res.redirect('/invalid')
+        return
+    }
     await prisma.folder.update({
         where: { path: oldPath },
         data: {
@@ -107,7 +112,7 @@ const updateFolder = [
 
 async function deleteFolder(req, res) {
     const path = req.body.path
-    if (path === '/') {
+    if (!req.isAuthenticated() || path === '/') {
         res.redirect('/invalid')
         return
     }
@@ -116,9 +121,21 @@ async function deleteFolder(req, res) {
 }
 
 async function postUpload(req, res) {
+    if (!req.isAuthenticated()) {
+        res.redirect('/invalid')
+        return
+    }
     const params = req.params.path || []
     const path = params.length === 0 ? '/' : `/${params.join('/')}/`
     const file = req.file
+    const dupe = await prisma.file.findUnique({ where: { fullPath: {
+        name: file.originalname,
+        folderPath: path
+    }}})
+    if (dupe !== null) {
+        res.redirect('/invalid')
+        return
+    }
     await prisma.file.create({ data: {
         name: file.originalname,
         mime: file.mimetype,
@@ -131,8 +148,16 @@ async function postUpload(req, res) {
 }
 
 async function getFile(req, res) {
+    if (!req.isAuthenticated()) {
+        res.redirect('/invalid')
+        return
+    }
     const id = Number(req.params.id)
     const file = await prisma.file.findUnique({ where: { id: id }})
+    if (!file) {
+        res.redirect('/invalid')
+        return
+    }
     const allPaths = await prisma.folder.findMany({ select: { path: true } })
     const paths = allPaths.map(path => path.path)
     res.render('file', { file: file, paths: paths })
@@ -140,13 +165,21 @@ async function getFile(req, res) {
 
 async function updateFileLast(req, res) {
     const errors = validationResult(req)
-    if (!errors.isEmpty()) {
+    if (!errors.isEmpty() || !req.isAuthenticated()) {
         res.redirect('/invalid')
         return
     }
     const { name, mime } = matchedData(req)
     const folder = req.body.folder
     const id = Number(req.params.id)
+    const file = await prisma.file.findUnique({ where: { fullPath: {
+        name: name,
+        folderPath: folder
+    }}})
+    if (file !== null) {
+        res.redirect('/invalid')
+        return
+    }
     await prisma.file.update({
         where: { id: id },
         data: {
@@ -166,6 +199,10 @@ const updateFile = [
 ]
 
 async function deleteFile(req, res) {
+    if (!req.isAuthenticated()) {
+        res.redirect('/invalid')
+        return
+    }
     const id = Number(req.params.id)
     await prisma.file.delete({ where: { id: id }})
     res.redirect('/files')

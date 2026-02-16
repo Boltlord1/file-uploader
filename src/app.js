@@ -3,18 +3,17 @@ import 'dotenv/config'
 import express from 'express'
 import session from 'express-session'
 import { PrismaSessionStore } from '@quixo3/prisma-session-store'
-import prisma from './prisma.js'
-import passport from './passport.js'
+import prisma from './utils/prisma.js'
+import passport from './utils/passport.js'
 import router from './router.js'
 
 const app = express()
 app.set('views', path.join(import.meta.dirname, 'views'))
 app.set('view engine', 'ejs')
 
-
 app.use(session({
     cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 },
-    secret: 'a santa at nasa',
+    secret: process.env.SECRET,
     resave: true,
     saveUninitialized: true,
     store: new PrismaSessionStore(prisma, {
@@ -23,10 +22,8 @@ app.use(session({
         dbRecordIdFunction: undefined
     })
 }))
-// app.use(session({ secret: 'cats', resave: false, saveUninitialized: false }))
 app.use(passport.session())
 app.use(express.urlencoded({ extended: true }))
-
 app.use('/', router)
 
 const port = process.env.PORT || 3000

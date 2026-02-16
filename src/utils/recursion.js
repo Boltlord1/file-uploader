@@ -1,4 +1,4 @@
-import prisma from '../prisma.js'
+import prisma from './prisma.js'
 
 async function updateChildren(path) {
     const children = await prisma.folder.findMany({

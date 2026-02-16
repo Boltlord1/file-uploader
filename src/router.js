@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import controllers from './controllers.js'
-import passport from './passport.js'
+import passport from './utils/passport.js'
 import multer from 'multer'
 
 const upload = multer({ dest: './uploads/'})

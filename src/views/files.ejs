@@ -13,18 +13,20 @@
         <% if (folder.parentPath) { %>
             <p><a href=<%- `/files${folder.parentPath.slice(0, -1)}` %>>Return</a></p>
         <% } %>
-        <form action=<%- `/file/upload${folder.path.slice(0, -1)}` %> method="post" enctype="multipart/form-data">
-            <h3>New File</h3>
-            <input type="file" name="new_file">
-            <button type="submit">Submit</button>
-        </form>
-        <form action=<%- `/folder/create${folder.path.slice(0, -1)}` %> method="post">
-            <h3>New Folder</h3>
-            <label for="name">Name</label>
-            <input type="text" name="name" id="name">
-            <button type="submit">Create</button>
-        </form>
-        <% if (folder.parentPath) { %>
+        <% if (logged) { %>
+            <form action=<%- `/file/upload${folder.path.slice(0, -1)}` %> method="post" enctype="multipart/form-data">
+                <h3>New File</h3>
+                <input type="file" name="new_file">
+                <button type="submit">Submit</button>
+            </form>
+            <form action=<%- `/folder/create${folder.path.slice(0, -1)}` %> method="post">
+                <h3>New Folder</h3>
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name">
+                <button type="submit">Create</button>
+            </form>
+        <% } %>
+        <% if (logged && folder.parentPath) { %>
             <form action="<%= `/folder/update${folder.path.slice(0, -1)}` %>" method="post">
                 <h3>Edit Folder</h3>
                 <label for="name">Rename</label>
@@ -60,7 +62,9 @@
                 <p>Mime type <%- file.mime %></p>
                 <p>Size <%- file.size %></p>
                 <p>Uploaded <%- file.uploaded %></p>
-                <p><a href=<%- `/file/edit/${file.id}` %>>Edit</a></p>
+                <% if (logged) { %>
+                    <p><a href=<%- `/file/edit/${file.id}` %>>Edit</a></p>
+                <% } %>
             </div>
         <% }} else { %>
             <p>No files yet.</p>
