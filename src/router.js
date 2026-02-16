@@ -5,7 +5,7 @@ import upload from './utils/multer.js'
 
 const router = Router()
 
-router.get('/', (req, res) => res.render('index', { user: req.user }))
+router.get('/', (req, res) => res.status(200).render('index', { user: req.user }))
 router.get('/invalid', (req, res) => res.render('invalid'))
 router.get('/signup', (req, res) => res.render('signup'))
 router.get('/login', (req, res) => res.render('login'))
